@@ -1,0 +1,37 @@
+node
+{
+    
+    def mavenHome = tool name :"3.8.1" 
+    
+    properties([buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')), pipelineTriggers([pollSCM(' * * * * *')])])
+
+    stage('Checkout Code')
+    {
+        git branch: 'development', url: 'https://github.com/chandu-99-a/maven-web-application.git'
+    }
+    stage('Build')
+    {
+        sh "${mavenHome}/bin/mvn clean package"
+    }
+     stage('Sonarqube report')
+    {
+        sh "${mavenHome}/bin/mvn sonar:sonar"
+    }
+     stage('Artifactory report nexus')
+    {
+        sh "${mavenHome}/bin/mvn deploy"
+    }
+    stage('Deployment into tomcat')
+    {
+        sshagent(['11771d72-fff7-413c-954e-84ba3f5b91f8']) {
+    sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@52.66.124.112:/opt/apache-tomcat-9.0.45/webapps"
+    }
+    }
+    stage('Send Emailnotification')
+    {
+        emailext body: '''Build has been completed.
+
+      Regards,
+      A.Chandu''', subject: 'Build report', to: 'anamalamudichandu@gmail.com'
+    }
+}
