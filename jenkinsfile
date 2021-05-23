@@ -9,6 +9,7 @@ node
     {
         git branch: 'development', url: 'https://github.com/chandu-99-a/maven-web-application.git'
     }
+/*   
     stage('Build')
     {
         sh "${mavenHome}/bin/mvn clean package"
@@ -27,6 +28,7 @@ node
     sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@52.66.124.112:/opt/apache-tomcat-9.0.45/webapps"
     }
     }
+    */
     stage('Send Emailnotification')
     {
         emailext body: '''Build has been completed.
