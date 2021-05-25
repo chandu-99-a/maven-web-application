@@ -1,0 +1,74 @@
+pipeline{
+    agent any
+    tools{
+        maven '3.8.1'
+         }
+        triggers
+        {
+            pollSCM('* * * * *')
+        }
+        options
+        {
+            buildDiscarder(logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5'))
+        
+            timestamps()
+        }
+    stages{
+        stage('getcode')
+        {
+            steps
+            {
+                git branch: 'development', url: 'https://github.com/chandu-99-a/maven-web-application.git'
+            }
+        }
+        stage('build code')
+        {
+            steps
+            {
+                sh "mvn clean package"
+            }
+        }
+        stage('Sonarqube report')
+        {
+            steps
+            {
+                sh "mvn sonar:sonar"
+            }
+        }
+        stage('Artfactreport nexus')
+        {
+            steps
+            {
+                sh "mvn deploy"
+            }
+        }
+        stage('deploy to Tomcat')
+        {
+            steps
+            {
+                  sshagent(['11771d72-fff7-413c-954e-84ba3f5b91f8']) {
+    sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@13.233.225.125:/opt/apache-tomcat-9.0.45/webapps"
+            
+                    }
+                  }
+        }
+    }
+    post {
+        success
+        {
+            emailext body: '''Build has been completed and it is success.
+
+      Regards,
+      A.Chandu''', subject: 'Build report success' , to: 'anamalamudichandu@gmail.com'
+      cleanWS()
+        }
+        failure
+        {
+            emailext body: '''Build has been failed.
+
+      Regards,
+      A.Chandu''', subject: 'Build report has been failed' , to: 'anamalamudichandu@gmail.com'
+      cleanWS()
+        }
+    }
+}
