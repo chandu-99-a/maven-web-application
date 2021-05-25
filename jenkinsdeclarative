@@ -60,7 +60,7 @@ pipeline{
 
       Regards,
       A.Chandu''', subject: 'Build report success' , to: 'anamalamudichandu@gmail.com'
-      cleanWS()
+      
         }
         failure
         {
@@ -68,7 +68,7 @@ pipeline{
 
       Regards,
       A.Chandu''', subject: 'Build report has been failed' , to: 'anamalamudichandu@gmail.com'
-      cleanWS()
+      
         }
     }
 }
