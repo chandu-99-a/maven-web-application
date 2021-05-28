@@ -1,5 +1,9 @@
 pipeline{
     agent any
+    perameters
+    {
+    choice(name:'Branchname',choices:['master','development','stage'],description:'Branch name')
+    }
     tools{
         maven '3.8.1'
          }
@@ -14,6 +18,13 @@ pipeline{
             timestamps()
         }
     stages{
+    stage('get the peramaters')
+    {
+        steps
+        {
+            sh "echo the name is: ${params.name}"
+         }
+      }
         stage('getcode')
         {
             steps
